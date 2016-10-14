@@ -5,7 +5,7 @@
 
 	<groupId>coderepository</groupId>
 	<artifactId>repository-server</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<packaging>jar</packaging>
 
 	<name>repository-server</name>
@@ -36,6 +36,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web-services</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>coderepository</groupId>
+			<artifactId>repository-generator</artifactId>
+			<version>0.0.1</version>
 		</dependency>
 
 		<dependency>
