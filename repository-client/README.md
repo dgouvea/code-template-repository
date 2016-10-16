@@ -78,3 +78,29 @@ repo config remove-alias junit
 ```bash
 repo config alias
 ```
+
+## Push a Template
+Push a template to your local repository.
+
+```bash
+repo push [folder] [template-name]
+
+# [folder] => by default = current directory
+# [template-name] => by default = directory name
+
+e.g.:
+repo push
+repo push template
+repo push template my-template
+```
+
+## Install a Template
+Install a template from your local repository.
+
+```bash
+repo install [template-name] [folder]
+
+e.g.:
+repo install my-template
+repo install my-template /home/me/workspace/
+```
