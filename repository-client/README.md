@@ -98,7 +98,9 @@ repo push template my-template
 Install a template from your local repository.
 
 ```bash
-repo install [template-name] [folder]
+repo install template-name [folder]
+
+# [folder] => by default = current directory
 
 e.g.:
 repo install my-template
