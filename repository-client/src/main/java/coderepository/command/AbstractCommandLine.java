@@ -1,26 +1,29 @@
 package coderepository.command;
 
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 
 import coderepository.Config;
 
-public abstract class AbstractCommandLine implements CommandLineRunner {
+public abstract class AbstractCommandLine {
 
 	@Autowired
 	protected Config config;
 	
-	@Override
-	public final void run(String... args) throws Exception {
-		try {
-			run(new Args(args));
-		} catch (Throwable e) {
-			e.printStackTrace();
-			log(e.getMessage());
+	private final List<AbstractCommandLine> commands = new ArrayList<>();
+	
+	public final void execute(String action, Args args) {
+		if (canExecute(action, args)) {
+			try {
+				run(action, args);
+			} catch (Throwable e) {
+				e.printStackTrace();
+				log(e.getMessage());
+			}
 		}
 	}
 
@@ -28,31 +31,30 @@ public abstract class AbstractCommandLine implements CommandLineRunner {
 		System.out.println(text);
 	}
 	
-	protected abstract void run(Args args);
+	protected final void next(String action, Args args) {
+		commands.forEach(command -> {
+			command.execute(action, args);
+		});
+	}
 	
-	public static final class Args implements Iterable<String> {
-		
-		private final List<String> args;
-		private final Iterator<String> iterator;
-
-		private Args(String... args) {
-			this.args = Arrays.asList(args);
-			this.iterator = this.args.iterator();
-		}
-		
-		public boolean hasNext() {
-			return iterator.hasNext();
-		}
-
-		public String next() {
-			return iterator.next();
-		}
-
-		@Override
-		public Iterator<String> iterator() {
-			return args.iterator();
-		}
+	protected boolean canExecute(String action, Args args) {
+		return getCommand().equals(action);
+	}
+	
+	@PostConstruct
+	private void load() {
+		load(commands);
+	}
+	
+	protected void load(List<AbstractCommandLine> commands) {
 		
 	}
+	
+	protected abstract String getCommand();
+
+	protected abstract String getHelp();
+	
+	protected abstract void run(String action, Args args);
+
 	
 }

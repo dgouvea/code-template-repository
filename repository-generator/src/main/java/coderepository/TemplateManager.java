@@ -41,6 +41,7 @@ public class TemplateManager {
 	}
 	
 	public TemplateManager setArtifact(String name) {
+		setProperty("artifact", name);
 		setProperty("projectName", name);
 		return this;
 	}

@@ -3,25 +3,40 @@ package coderepository.command;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ConfigCommand extends AbstractCommandLine {
 	
+	@Autowired
+	private ConfigAliasCommand aliasCommand;
+
+	@Autowired
+	private ConfigDefaultCommand defaultCommand;
+	
 	@Override
-	protected void run(Args args) {
-		if (!args.hasNext()) {
-			return;
-		}
-		
-		String param = args.next();
-		
-		if (!param.equals("config")) {
-			return;
-		}
-		
+	protected String getCommand() {
+		return "config";
+	}
+	
+	@Override
+	protected String getHelp() {
+		return "Manage configurations";
+	}
+	
+	@Override
+	protected void load(List<AbstractCommandLine> commands) {
+		commands.add(aliasCommand);
+		commands.add(defaultCommand);
+	}
+	
+	@Override
+	protected void run(String action, Args args) {
 		if (!args.hasNext()) {
 			log(printConfig());
+		} else {
+			next(args.next(), args);
 		}
 	}
 

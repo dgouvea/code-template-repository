@@ -8,23 +8,22 @@ import org.springframework.stereotype.Component;
 public class ConfigDefaultCommand extends AbstractCommandLine {
 
 	@Override
-	protected void run(Args args) {
-		if (!args.hasNext()) {
-			return;
-		}
-		
-		String param = args.next();
-		
-		if (!param.equals("config")) {
-			return;
-		}
-
-		if (!args.hasNext()) {
-			return;
-		}
-		
-		String action = args.next();
-		
+	protected String getCommand() {
+		return "default";
+	}
+	
+	@Override
+	protected String getHelp() {
+		return "Manage default values";
+	}
+	
+	@Override
+	protected boolean canExecute(String action, Args args) {
+		return action.equals("default") || action.equals("remove-default");
+	}
+	
+	@Override
+	protected void run(String action, Args args) {
 		if (action.equals("default")) {
 			if (args.hasNext()) {
 				addDefault(args);

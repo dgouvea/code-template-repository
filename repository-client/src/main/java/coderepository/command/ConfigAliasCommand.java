@@ -8,23 +8,22 @@ import org.springframework.stereotype.Component;
 public class ConfigAliasCommand extends AbstractCommandLine {
 
 	@Override
-	protected void run(Args args) {
-		if (!args.hasNext()) {
-			return;
-		}
-		
-		String param = args.next();
-		
-		if (!param.equals("config")) {
-			return;
-		}
-		
-		if (!args.hasNext()) {
-			return;
-		}
-		
-		String action = args.next();
-		
+	protected String getCommand() {
+		return "alias";
+	}
+	
+	@Override
+	protected String getHelp() {
+		return "Manage the dependency aliases";
+	}
+	
+	@Override
+	protected boolean canExecute(String action, Args args) {
+		return action.equals("alias") || action.equals("remove-alias");
+	}
+	
+	@Override
+	protected void run(String action, Args args) {
 		if (action.equals("alias")) {
 			if (args.hasNext()) {
 				addAlias(args);

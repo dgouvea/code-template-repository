@@ -10,17 +10,17 @@ import coderepository.util.CompressorUtils;
 public class PushCommand extends AbstractCommandLine {
 
 	@Override
-	protected void run(Args args) {
-		if (!args.hasNext()) {
-			return;
-		}
-
-		String action = args.next(); 
-		
-		if (!action.equals("push")) {
-			return;
-		}
-		
+	protected String getCommand() {
+		return "push";
+	}
+	
+	@Override
+	protected String getHelp() {
+		return "Push a template to the local repository";
+	}
+	
+	@Override
+	protected void run(String action, Args args) {
 		String folderName = ".";
 		if (args.hasNext()) {
 			folderName = args.next();

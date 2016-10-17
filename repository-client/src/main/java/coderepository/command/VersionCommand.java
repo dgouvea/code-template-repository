@@ -6,18 +6,25 @@ import org.springframework.stereotype.Component;
 public class VersionCommand extends AbstractCommandLine {
 
 	@Override
-	protected void run(Args args) {
-		if (!args.hasNext()) {
-			return;
-		}
-		
-		String param = args.next();
-		
-		if (param.equals("-v") || param.equals("-version")) {
-			String version = config.getProperty("client.version");
-			log("Code Template Repository version " + version);
-			log("Developed by David Sobreira Gouvea in Poland");
-		}
+	protected String getCommand() {
+		return "";
+	}
+	
+	@Override
+	protected String getHelp() {
+		return "Display the version";
+	}
+	
+	@Override
+	protected boolean canExecute(String action, Args args) {
+		return action.isEmpty() && args.getOptions().has("v", "version");
+	}
+	
+	@Override
+	protected void run(String action, Args args) {
+		String version = config.getProperty("client.version");
+		log("Code Template Repository version " + version);
+		log("Developed by David Sobreira Gouvea in Poland");
 	}
 
 }
