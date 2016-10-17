@@ -98,11 +98,29 @@ repo push template my-template
 Install a template from your local repository.
 
 ```bash
-repo install template-name [folder]
+repo install template-name [folder] [options] [dependencies]
 
 # [folder] => by default = current directory
+# [options] => options must use prefix "-", e.g.: -g my.group or -group my.group
+# [dependencues] => dependencies must use prefix "+", e.g.: +junit or +commons-io:commons-io:2.5
+
+# options:
+# - b[uilder] => builder system, e.g.: maven or gradle
+# - g[roup] => group
+# - a[rtifact] => artifact
+# - v[ersion] => version
+# - packaging => packaging
 
 e.g.:
 repo install my-template
 repo install my-template /home/me/workspace/
+repo install my-template /home/me/workspace/ -g com.example -a example -packaging war -v 2.0
+repo install my-template /home/me/workspace/ -group com.example -artifact example -packaging war -version 2.0
+```
+
+## List all templates
+List all templates from local repository
+
+```bash
+repo list
 ```

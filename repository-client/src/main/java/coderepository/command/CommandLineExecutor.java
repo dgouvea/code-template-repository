@@ -26,6 +26,9 @@ public class CommandLineExecutor implements CommandLineRunner {
 	
 	@Autowired
 	private HelpCommand helpCommand;
+
+	@Autowired
+	private TemplateListCommand templateListCommand;
 	
 	private final List<AbstractCommandLine> commands = new ArrayList<>();
 	
@@ -36,6 +39,7 @@ public class CommandLineExecutor implements CommandLineRunner {
 		commands.add(configCommand);
 		commands.add(pushCommand);
 		commands.add(installCommand);
+		commands.add(templateListCommand);
 	}
 	
 	@Override

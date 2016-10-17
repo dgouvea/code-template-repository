@@ -54,12 +54,16 @@ public class InstallCommand extends AbstractCommandLine {
 		CompressorUtils.uncompress(templateFile, tmp);
 		
 		TemplateManager templateManager = new TemplateManager(tmp.getAbsolutePath());
+		templateManager.setDependencyManagerSystem(config.getProperty("default.builder"));
 		templateManager.setGroup(config.getProperty("default.group"));
 		templateManager.setArtifact(config.getProperty("default.artifact"));
 		templateManager.setVersion(config.getProperty("default.version"));
 		templateManager.setPackaging(config.getProperty("default.packaging"));
 
 		Options options = args.getOptions();
+		if (options.has("builder", "b")) {
+			templateManager.setDependencyManagerSystem(options.get("build", "b").getValue());
+		}
 		if (options.has("group", "g")) {
 			templateManager.setGroup(options.get("group", "g").getValue());
 		}
