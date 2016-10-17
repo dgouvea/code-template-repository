@@ -1,6 +1,7 @@
 package coderepository.command;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.springframework.stereotype.Component;
 
@@ -27,6 +28,11 @@ public class PushCommand extends AbstractCommandLine {
 		}
 		
 		File folder = new File(folderName);
+		try {
+			folder = folder.getCanonicalFile();
+		} catch (IOException e) {
+			throw new RuntimeException("Problem in folder " + folderName, e);
+		}
 
 		String templateName = folder.getName();
 		if (args.hasNext()) {

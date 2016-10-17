@@ -37,6 +37,12 @@ public class InstallCommand extends AbstractCommandLine {
 		}
 		
 		File folder = new File(folderName);
+		try {
+			folder = folder.getCanonicalFile();
+		} catch (IOException e) {
+			throw new RuntimeException("Problem in folder " + folderName, e);
+		}
+		
 		File templateFile = new File(config.getRepositoryFolder(), templateName + ".zip");
 		if (!templateFile.exists()) {
 			throw new RuntimeException("Template " + templateName + " not found");
