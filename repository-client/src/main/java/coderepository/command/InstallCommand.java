@@ -84,6 +84,10 @@ public class InstallCommand extends AbstractCommandLine {
 		List<String> dependencies = args.getDependencies();
 		dependencies.forEach(dependency -> {
 			String[] parts = dependency.split(":");
+			if (parts.length == 1) {
+				String alias = config.getProperty("dependency.alias." + parts[0]);
+				parts = alias.split(":");
+			}
 			if (parts.length == 3) {
 				templateManager.dependency(parts[0], parts[1], parts[2]);
 			} else if (parts.length == 4) {
