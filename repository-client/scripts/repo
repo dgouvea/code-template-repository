@@ -1,1 +1,2 @@
-java -jar repository-client-0.0.1.jar "$@"
+#!/bin/sh
+java -jar $PWD/../lib/repository-client-0.0.1.jar "$@"

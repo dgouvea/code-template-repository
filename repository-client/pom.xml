@@ -54,19 +54,26 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<outputDirectory>${project.build.directory}/${project.artifactId}/lib</outputDirectory>
+				</configuration>
+			</plugin>
+			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<executions>
 					<execution>
 						<id>copy-resources</id>
-						<phase>prepare-package</phase>
+						<phase>package</phase>
 						<goals>
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${basedir}/target</outputDirectory>
+							<outputDirectory>${project.build.directory}/${project.artifactId}</outputDirectory>
 							<resources>
 								<resource>
 									<directory>scripts</directory>
+									<targetPath>bin</targetPath>
 									<filtering>true</filtering>
 								</resource>
 							</resources>
