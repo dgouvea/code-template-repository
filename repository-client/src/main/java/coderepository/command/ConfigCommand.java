@@ -15,6 +15,9 @@ public class ConfigCommand extends AbstractCommandLine {
 	@Autowired
 	private ConfigDefaultCommand defaultCommand;
 	
+	@Autowired
+	private ConfigRepositoryCommand repositoryCommand;
+	
 	@Override
 	protected String getCommand() {
 		return "config";
@@ -29,6 +32,7 @@ public class ConfigCommand extends AbstractCommandLine {
 	protected void load(List<AbstractCommandLine> commands) {
 		commands.add(aliasCommand);
 		commands.add(defaultCommand);
+		commands.add(repositoryCommand);
 	}
 	
 	@Override

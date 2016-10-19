@@ -30,6 +30,9 @@ public class CommandLineExecutor implements CommandLineRunner {
 	@Autowired
 	private TemplateListCommand templateListCommand;
 	
+	@Autowired
+	private ShareCommand shareCommand;
+	
 	private final List<AbstractCommandLine> commands = new ArrayList<>();
 	
 	@PostConstruct
@@ -40,6 +43,7 @@ public class CommandLineExecutor implements CommandLineRunner {
 		commands.add(pushCommand);
 		commands.add(installCommand);
 		commands.add(templateListCommand);
+		commands.add(shareCommand);
 	}
 	
 	@Override

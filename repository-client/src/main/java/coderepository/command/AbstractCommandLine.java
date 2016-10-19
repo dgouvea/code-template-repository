@@ -21,7 +21,6 @@ public abstract class AbstractCommandLine {
 			try {
 				run(action, args);
 			} catch (Throwable e) {
-				e.printStackTrace();
 				log(e.getMessage());
 			}
 		}
