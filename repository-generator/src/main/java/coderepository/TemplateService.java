@@ -48,6 +48,12 @@ public class TemplateService {
 		return rest.getForObject(url + "/repository/templates", Templates.class);
 	}
 	
+	public boolean exists(String templateName) {
+		File repositoryFolder = config.getRepositoryFolder();
+		File templateFile = new File(repositoryFolder, getTemplateFileName(templateName));
+		return templateFile.exists();
+	}
+	
 	public byte[] download(String templateName) {
 		byte[] byteArray;
 

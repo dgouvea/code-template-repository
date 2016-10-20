@@ -1,9 +1,10 @@
 package coderepository.command;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,24 +38,22 @@ public class ShareCommand extends AbstractCommandLine {
 		
 		String templateName = args.next();
 		
-		File repositoryFolder = config.getRepositoryFolder();
-		
-		File templateFile = new File(repositoryFolder, templateService.getTemplateFileName(templateName));
-		if (!templateFile.exists()) {
+		String templateFileName = templateService.getTemplateFileName(templateName);
+		if (!templateService.exists(templateName)) {
 			throw new IllegalArgumentException("Template " + templateName + " does not exists");
 		}
 		
+		byte[] bytes = templateService.download(templateName);
+
 		if (!args.hasNext()) {
-			try {
-				FileUtils.copyFileToDirectory(templateFile, new File("."));
-				log("Creating template package for " + templateFile);
+			try (FileOutputStream outputStream = new FileOutputStream(new File(templateFileName))) {
+				IOUtils.write(bytes, outputStream);
+				log("Creating template package for " + templateFileName);
 			} catch (IOException e) {
 				throw new RuntimeException("Error copying template: " + e.getMessage(), e);
 			}
 		} else {
 			String repositoryName = args.next();
-			
-			byte[] bytes = templateService.download(templateName);
 			repositoryService.push(repositoryName, templateName, bytes);
 		}
 	}
