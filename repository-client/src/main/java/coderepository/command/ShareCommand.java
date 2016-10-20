@@ -1,10 +1,22 @@
 package coderepository.command;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+
+import coderepository.Template;
 
 @Component
 public class ShareCommand extends AbstractCommandLine {
@@ -45,7 +57,30 @@ public class ShareCommand extends AbstractCommandLine {
 	}
 
 	private void share(String templateName, File templateFile, String url) {
+		byte[] byteArray;
 
+		try (FileInputStream inputStream = new FileInputStream(templateFile)) {
+			byteArray = IOUtils.toByteArray(inputStream);
+		} catch (IOException e) {
+			throw new RuntimeException("Error reading the template file", e);
+		}
+		
+		HttpHeaders header = new HttpHeaders();
+		header.setContentType(MediaType.MULTIPART_FORM_DATA);
+		
+		MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
+		multipartRequest.add("file", new ByteArrayResource(byteArray) {
+			@Override
+			public String getFilename() {
+				return templateFile.getName();
+			}
+		});
+		multipartRequest.add("filename", templateFile.getName());
+		 
+		HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartRequest, header);
+		
+		RestTemplate rest = new RestTemplate();
+		rest.exchange(url + "/repository/push", HttpMethod.POST, requestEntity, Template.class);
 	}
 
 	private void copyTemplate(File templateFile) {

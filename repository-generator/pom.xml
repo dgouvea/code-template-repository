@@ -19,6 +19,12 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>4.3.3.RELEASE</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>codingeasy</groupId>
 			<artifactId>coding-easy-generator</artifactId>
 			<version>0.2.0</version>
