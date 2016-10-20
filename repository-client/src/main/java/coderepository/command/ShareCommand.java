@@ -1,26 +1,24 @@
 package coderepository.command;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 
-import coderepository.Template;
+import coderepository.RepositoryService;
+import coderepository.TemplateService;
 
 @Component
 public class ShareCommand extends AbstractCommandLine {
 
+	@Autowired
+	private TemplateService templateService;
+
+	@Autowired
+	private RepositoryService repositoryService;
+	
 	@Override
 	protected String getCommand() {
 		return "share";
@@ -41,7 +39,7 @@ public class ShareCommand extends AbstractCommandLine {
 		
 		File repositoryFolder = config.getRepositoryFolder();
 		
-		File templateFile = new File(repositoryFolder, templateName + ".zip");
+		File templateFile = new File(repositoryFolder, templateService.getTemplateFileName(templateName));
 		if (!templateFile.exists()) {
 			throw new IllegalArgumentException("Template " + templateName + " does not exists");
 		}
@@ -54,38 +52,11 @@ public class ShareCommand extends AbstractCommandLine {
 				throw new RuntimeException("Error copying template: " + e.getMessage(), e);
 			}
 		} else {
-			String repository = args.next();
-			String url = config.getProperty("repository." + repository);
+			String repositoryName = args.next();
 			
-			share(templateName, templateFile, url);
+			byte[] bytes = templateService.download(templateName);
+			repositoryService.push(repositoryName, templateName, bytes);
 		}
-	}
-
-	private void share(String templateName, File templateFile, String url) {
-		byte[] byteArray;
-
-		try (FileInputStream inputStream = new FileInputStream(templateFile)) {
-			byteArray = IOUtils.toByteArray(inputStream);
-		} catch (IOException e) {
-			throw new RuntimeException("Error reading the template file", e);
-		}
-		
-		HttpHeaders header = new HttpHeaders();
-		header.setContentType(MediaType.MULTIPART_FORM_DATA);
-		
-		MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
-		multipartRequest.add("file", new ByteArrayResource(byteArray) {
-			@Override
-			public String getFilename() {
-				return templateFile.getName();
-			}
-		});
-		multipartRequest.add("filename", templateFile.getName());
-		 
-		HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartRequest, header);
-		
-		RestTemplate rest = new RestTemplate();
-		rest.exchange(url + "/repository/push", HttpMethod.POST, requestEntity, Template.class);
 	}
 
 }
