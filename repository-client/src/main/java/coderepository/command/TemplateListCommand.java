@@ -1,15 +1,16 @@
 package coderepository.command;
 
-import java.io.File;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
-import coderepository.Templates;
+import coderepository.TemplateService;
 
 @Component
 public class TemplateListCommand extends AbstractCommandLine {
 
+	@Autowired
+	private TemplateService templateService;
+	
 	@Override
 	protected String getCommand() {
 		return "list";
@@ -23,17 +24,15 @@ public class TemplateListCommand extends AbstractCommandLine {
 	@Override
 	protected void run(String action, Args args) {
 		log("## local");
-		File repositoryFolder = config.getRepositoryFolder();
-		File[] files = repositoryFolder.listFiles();
-		for (File file : files) {
-			log("\t* " + file.getName().replace(".zip", ""));
-		}
-		config.getSection("repository").entrySet().forEach(e -> {
-			log("\n## remote: " + e.getKey().replace("repository.", "") + " (" + e.getValue() + ")");
+		templateService.local().forEach(template -> {
+			log("\t* " + template.getName());
+		});
+		
+		config.getSection("repository").forEach((key, value) -> {
+			String repositoryName = key.replace("repository.", "");
+			log("\n## remote: " + repositoryName + " (" + value + ")");
 			
-			RestTemplate rest = new RestTemplate();
-			Templates templates = rest.getForObject(e.getValue() + "/repository/templates", Templates.class);
-			templates.forEach(template -> {
+			templateService.remote(repositoryName).forEach(template -> {
 				log("\t* " + template.getName());
 			});
 		});

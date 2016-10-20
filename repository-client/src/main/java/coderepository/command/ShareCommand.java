@@ -47,7 +47,12 @@ public class ShareCommand extends AbstractCommandLine {
 		}
 		
 		if (!args.hasNext()) {
-			copyTemplate(templateFile);
+			try {
+				FileUtils.copyFileToDirectory(templateFile, new File("."));
+				log("Creating template package for " + templateFile);
+			} catch (IOException e) {
+				throw new RuntimeException("Error copying template: " + e.getMessage(), e);
+			}
 		} else {
 			String repository = args.next();
 			String url = config.getProperty("repository." + repository);
@@ -81,15 +86,6 @@ public class ShareCommand extends AbstractCommandLine {
 		
 		RestTemplate rest = new RestTemplate();
 		rest.exchange(url + "/repository/push", HttpMethod.POST, requestEntity, Template.class);
-	}
-
-	private void copyTemplate(File templateFile) {
-		try {
-			FileUtils.copyFileToDirectory(templateFile, new File("."));
-			log("Creating template package for " + templateFile);
-		} catch (IOException e) {
-			throw new RuntimeException("Error copying template: " + e.getMessage(), e);
-		}
 	}
 
 }

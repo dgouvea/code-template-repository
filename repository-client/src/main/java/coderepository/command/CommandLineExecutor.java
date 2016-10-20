@@ -49,8 +49,7 @@ public class CommandLineExecutor implements CommandLineRunner {
 	@Override
 	public void run(String... arguments) throws Exception {
 		Args args = new Args(arguments);
-		
-		final String action = args.hasNext() ? args.next() : "";
+		String action = args.hasNext() ? args.next() : "";
 
 		commands.forEach(command -> {
 			command.execute(action, args);
