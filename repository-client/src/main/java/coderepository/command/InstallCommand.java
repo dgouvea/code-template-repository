@@ -1,18 +1,25 @@
 package coderepository.command;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import coderepository.TemplateManager;
+import coderepository.TemplateService;
 import coderepository.util.CompressorUtils;
 
 @Component
 public class InstallCommand extends AbstractCommandLine {
 
+	@Autowired
+	private TemplateService templateService;
+	
 	@Override
 	protected String getCommand() {
 		return "install";
@@ -43,15 +50,23 @@ public class InstallCommand extends AbstractCommandLine {
 			throw new RuntimeException("Problem in folder " + folderName, e);
 		}
 		
-		File templateFile = new File(config.getRepositoryFolder(), templateName + ".zip");
-		if (!templateFile.exists()) {
+		if (!templateService.exists(templateName)) {
 			throw new RuntimeException("Template " + templateName + " not found");
 		}
 		
 		File tmp = new File(System.getProperty("java.io.tmpdir"), templateName);
 		tmp.mkdirs();
 
-		CompressorUtils.uncompress(templateFile, tmp);
+		File packageFile = new File(tmp, templateService.getTemplateFileName(templateName));
+		
+		byte[] bytes = templateService.download(templateName);
+		try (FileOutputStream outputStream = new FileOutputStream(packageFile)) {
+			IOUtils.write(bytes, outputStream);
+		} catch (IOException e) {
+			throw new RuntimeException("Error downloading the template", e);
+		}
+		
+		CompressorUtils.uncompress(packageFile, tmp);
 		
 		TemplateManager templateManager = new TemplateManager(tmp.getAbsolutePath());
 		templateManager.setDependencyManagerSystem(config.getProperty("default.builder"));

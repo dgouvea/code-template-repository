@@ -13,22 +13,24 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class TemplateService {
 
+	private static final String PACKAGE_EXTENSION = ".zip";
+	
 	@Autowired
 	private Config config;
 	
 	public String getTemplateFileName(String templateName) {
-		return templateName + ".zip";
+		return templateName + PACKAGE_EXTENSION;
 	}
 
 	public String getTemplateName(String templateFileName) {
-		return templateFileName.replace(".zip", "");
+		return templateFileName.replace(PACKAGE_EXTENSION, "");
 	}
 	
 	public Templates local() {
 		Templates templates = new Templates();
 		
 		File repositoryFolder = config.getRepositoryFolder();
-		File[] files = repositoryFolder.listFiles();
+		File[] files = repositoryFolder.listFiles(file -> file.isFile() && file.getName().endsWith(PACKAGE_EXTENSION));
 		for (File file : files) {
 			Template template = new Template();
 			template.setName(getTemplateName(file.getName()));

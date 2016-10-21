@@ -55,6 +55,7 @@ public class ShareCommand extends AbstractCommandLine {
 		} else {
 			String repositoryName = args.next();
 			repositoryService.push(repositoryName, templateName, bytes);
+			log("Template " + templateName + " has pushed to " + repositoryName + " repository");
 		}
 	}
 

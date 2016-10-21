@@ -2,6 +2,7 @@ package coderepository.command;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 
 import coderepository.TemplateService;
 
@@ -32,9 +33,13 @@ public class TemplateListCommand extends AbstractCommandLine {
 			String repositoryName = key.replace("repository.", "");
 			log("\n## remote: " + repositoryName + " (" + value + ")");
 			
-			templateService.remote(repositoryName).forEach(template -> {
-				log("\t* " + template.getName());
-			});
+			try {
+				templateService.remote(repositoryName).forEach(template -> {
+					log("\t* " + template.getName());
+				});
+			} catch (ResourceAccessException e) {
+				log("\t> Cannot access this repository: " + e.getMessage());
+			}
 		});
 	}
 

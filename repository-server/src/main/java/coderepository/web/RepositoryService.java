@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import coderepository.Config;
 import coderepository.Template;
+import coderepository.TemplateService;
 import coderepository.Templates;
 
 @RestController
@@ -35,13 +36,16 @@ public class RepositoryService {
 	@Autowired
 	private Config config;
 	
+	@Autowired
+	private TemplateService templateService;
+	
 	@RequestMapping(method = RequestMethod.GET, value = "/templates")
 	public ResponseEntity<Templates> templates() {
 		File repositoryFolder = config.getRepositoryFolder();
 
 		List<Template> templates = Arrays.asList(repositoryFolder.listFiles()).stream().map(file -> {
 			Template template = new Template();
-			template.setName(file.getName().replace(".zip", ""));
+			template.setName(templateService.getTemplateName(file.getName()));
 			template.setFileName(file.getName());
 			template.setDate(new Date());
 			template.setSize(file.length());
@@ -56,7 +60,7 @@ public class RepositoryService {
 	public ResponseEntity<Resource> download(@PathVariable("name") String name) {
 		File repositoryFolder = config.getRepositoryFolder();
 		
-		File templateFile = new File(repositoryFolder, name + ".zip");
+		File templateFile = new File(repositoryFolder, templateService.getTemplateFileName(name));
 		if (templateFile.exists()) {
 			byte[] byteArray;
 
@@ -88,7 +92,7 @@ public class RepositoryService {
 			File templateFile = new File(repositoryFolder, file.getOriginalFilename());
 			if (!templateFile.exists()) {
 				Template template = new Template();
-				template.setName(templateFile.getName().replace(".zip", ""));
+				template.setName(templateService.getTemplateName(templateFile.getName()));
 				template.setFileName(templateFile.getName());
 				template.setDate(new Date());
 				template.setSize(file.getSize());

@@ -3,13 +3,18 @@ package coderepository.command;
 import java.io.File;
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import coderepository.TemplateService;
 import coderepository.util.CompressorUtils;
 
 @Component
 public class PushCommand extends AbstractCommandLine {
 
+	@Autowired
+	private TemplateService templateService;
+	
 	@Override
 	protected String getCommand() {
 		return "push";
@@ -39,7 +44,7 @@ public class PushCommand extends AbstractCommandLine {
 			templateName = args.next();
 		}
 		
-		CompressorUtils.compress(new File(config.getRepositoryFolder(), templateName + ".zip"), folder);
+		CompressorUtils.compress(new File(config.getRepositoryFolder(), templateService.getTemplateFileName(templateName)), folder);
 		
 		log("Template \"" + templateName + "\" created in the local repository");
 	}
