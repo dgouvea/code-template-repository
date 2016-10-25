@@ -96,6 +96,14 @@ public class InstallCommand extends AbstractCommandLine {
 		args.options().forEach((name, value) -> {
 			templateManager.setProperty(name, value);
 		});
+
+		if (args.param("group").isPresent()) {
+			templateManager.setGroup(args.param("group").get());
+		}
+		
+		if (args.param("artifact").isPresent()) {
+			templateManager.setArtifact(args.param("artifact").get());
+		}
 		
 		args.dependencies().forEach(dependency -> templateManager.dependency(dependency));
 		
