@@ -69,6 +69,10 @@ public class TemplateManager {
 	public void dependency(String group, String artifact, String version) {
 		dependencies.add(new Dependency(group, artifact, version));
 	}
+
+	public void dependency(Dependency dependency) {
+		dependencies.add(dependency);
+	}
 	
 	public void installDependencies(String path) {
 		if (dependencyManagementSystem == null || dependencies.isEmpty()) {

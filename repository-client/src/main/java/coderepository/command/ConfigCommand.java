@@ -3,20 +3,12 @@ package coderepository.command;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import coderepository.command.Options.Args;
 
 @Component
 public class ConfigCommand extends AbstractCommandLine {
-	
-	@Autowired
-	private ConfigAliasCommand aliasCommand;
-
-	@Autowired
-	private ConfigDefaultCommand defaultCommand;
-	
-	@Autowired
-	private ConfigRepositoryCommand repositoryCommand;
 	
 	@Override
 	protected String getCommand() {
@@ -29,18 +21,17 @@ public class ConfigCommand extends AbstractCommandLine {
 	}
 	
 	@Override
-	protected void load(List<AbstractCommandLine> commands) {
-		commands.add(aliasCommand);
-		commands.add(defaultCommand);
-		commands.add(repositoryCommand);
+	public Options options() {
+		Options options = new Options();
+		options.param(getCommand(), getHelp());
+		options.param("options", "options");
+		return options;
 	}
 	
 	@Override
-	protected void run(String action, Args args) {
-		if (!args.hasNext()) {
+	protected void run(Args args) {
+		if (args.params().size() == 1) {
 			log(printConfig());
-		} else {
-			next(args.next(), args);
 		}
 	}
 

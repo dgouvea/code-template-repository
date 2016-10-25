@@ -3,15 +3,16 @@ package coderepository.command;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import coderepository.RepositoryServiceFacade;
 import coderepository.TemplateManager;
 import coderepository.TemplateService;
+import coderepository.command.Options.Args;
 import coderepository.util.CompressorUtils;
 
 @Component
@@ -19,6 +20,9 @@ public class InstallCommand extends AbstractCommandLine {
 
 	@Autowired
 	private TemplateService templateService;
+	
+	@Autowired
+	private RepositoryServiceFacade repositoryServiceFacade;
 	
 	@Override
 	protected String getCommand() {
@@ -31,16 +35,30 @@ public class InstallCommand extends AbstractCommandLine {
 	}
 	
 	@Override
-	protected void run(String action, Args args) {
-		if (!args.hasNext()) {
+	public Options options() {
+		Options options = new Options();
+		options.param(getCommand(), getHelp());
+		options.param("template", "The name of template to be installed");
+		options.param("folder", "The destination folder where the template will be installed");
+		options.option("The group name", true, "group", "g");
+		options.option("The artifact name", true, "artifact", "a");
+		options.option("The version of artifact", true, "version", "v");
+		options.option("The packaging type", true, "packaging");
+		options.option("The Builder system to be used. e.g.: Maven, Gradle", true, "builder", "b");
+		return options;
+	}
+	
+	@Override
+	protected void run(Args args) {
+		if (!args.param("template").isPresent()) {
 			throw new IllegalArgumentException("You should provide the template name");
 		}
 		
-		String templateName = args.next();
+		String templateName = args.param("template").get();
 		
 		String folderName = ".";
-		if (args.hasNext()) {
-			folderName = args.next();
+		if (args.param("folder").isPresent()) {
+			folderName = args.param("folder").get();
 		}
 		
 		File folder = new File(folderName);
@@ -50,7 +68,7 @@ public class InstallCommand extends AbstractCommandLine {
 			throw new RuntimeException("Problem in folder " + folderName, e);
 		}
 		
-		if (!templateService.exists(templateName)) {
+		if (!repositoryServiceFacade.exists(templateName)) {
 			throw new RuntimeException("Template " + templateName + " not found");
 		}
 		
@@ -59,7 +77,7 @@ public class InstallCommand extends AbstractCommandLine {
 
 		File packageFile = new File(tmp, templateService.getTemplateFileName(templateName));
 		
-		byte[] bytes = templateService.download(templateName);
+		byte[] bytes = repositoryServiceFacade.download(templateName);
 		try (FileOutputStream outputStream = new FileOutputStream(packageFile)) {
 			IOUtils.write(bytes, outputStream);
 		} catch (IOException e) {
@@ -75,40 +93,11 @@ public class InstallCommand extends AbstractCommandLine {
 		templateManager.setVersion(config.getProperty("default.version"));
 		templateManager.setPackaging(config.getProperty("default.packaging"));
 
-		Options options = args.getOptions();
-		if (options.has("builder", "b")) {
-			templateManager.setDependencyManagerSystem(options.get("build", "b").getValue());
-		}
-		if (options.has("group", "g")) {
-			templateManager.setGroup(options.get("group", "g").getValue());
-		}
-		if (options.has("artifact", "a")) {
-			templateManager.setArtifact(options.get("artifact", "a").getValue());
-		}
-		if (options.has("version", "v")) {
-			templateManager.setVersion(options.get("version", "v").getValue());
-		}
-		if (options.has("packaging")) {
-			templateManager.setPackaging(options.get("packaging").getValue());
-		}
-		
-		options.forEach(option -> {
-			templateManager.setProperty(option.getOption(), option.getValue());
+		args.options().forEach((name, value) -> {
+			templateManager.setProperty(name, value);
 		});
 		
-		List<String> dependencies = args.getDependencies();
-		dependencies.forEach(dependency -> {
-			String[] parts = dependency.split(":");
-			if (parts.length == 1) {
-				String alias = config.getProperty("dependency.alias." + parts[0]);
-				parts = alias.split(":");
-			}
-			if (parts.length == 3) {
-				templateManager.dependency(parts[0], parts[1], parts[2]);
-			} else if (parts.length == 4) {
-				templateManager.dependency(parts[0], parts[1], parts[2], parts[3]);
-			}
-		});
+		args.dependencies().forEach(dependency -> templateManager.dependency(dependency));
 		
 		templateManager.install(folder.getAbsolutePath());
 		

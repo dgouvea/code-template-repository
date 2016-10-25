@@ -1,49 +1,35 @@
 package coderepository.command;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import coderepository.Config;
+import coderepository.command.Options.Args;
 
 public abstract class AbstractCommandLine {
 
 	@Autowired
 	protected Config config;
 	
-	private final List<AbstractCommandLine> commands = new ArrayList<>();
-	
-	public final void execute(String action, Args args) {
-		if (canExecute(action, args)) {
+	public final void execute(Args args) {
+		if (canExecute(args)) {
 			try {
-				run(action, args);
+				run(args);
 			} catch (Throwable e) {
-				e.printStackTrace();
 				log(e.getMessage());
 			}
 		}
 	}
+	
+	public abstract Options options();
 
 	protected final void log(String text) {
 		System.out.println(text);
 	}
 	
-	protected final void next(String action, Args args) {
-		commands.forEach(command -> {
-			command.execute(action, args);
-		});
-	}
-	
-	protected boolean canExecute(String action, Args args) {
-		return getCommand().equals(action);
-	}
-	
-	@PostConstruct
-	private void load() {
-		load(commands);
+	protected boolean canExecute(Args args) {
+		return args.param(getCommand()).isPresent() && args.param(getCommand()).get().equals(getCommand());
 	}
 	
 	protected void load(List<AbstractCommandLine> commands) {
@@ -54,7 +40,7 @@ public abstract class AbstractCommandLine {
 
 	protected abstract String getHelp();
 	
-	protected abstract void run(String action, Args args);
+	protected abstract void run(Args args);
 
 	
 }

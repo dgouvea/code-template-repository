@@ -2,6 +2,8 @@ package coderepository.command;
 
 import org.springframework.stereotype.Component;
 
+import coderepository.command.Options.Args;
+
 @Component
 public class VersionCommand extends AbstractCommandLine {
 
@@ -16,12 +18,19 @@ public class VersionCommand extends AbstractCommandLine {
 	}
 	
 	@Override
-	protected boolean canExecute(String action, Args args) {
-		return action.isEmpty() && args.getOptions().has("v", "version");
+	public Options options() {
+		Options options = new Options();
+		options.option("Show the version of Code Template Repository client", "version", "v");
+		return options;
 	}
 	
 	@Override
-	protected void run(String action, Args args) {
+	protected boolean canExecute(Args args) {
+		return args.params().isEmpty() && args.hasOption("v", "version");
+	}
+	
+	@Override
+	protected void run(Args args) {
 		String version = config.getProperty("client.version");
 		log("Code Template Repository version " + version);
 		log("Developed by David Sobreira Gouvea in Poland");

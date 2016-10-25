@@ -1,71 +1,181 @@
 package coderepository.command;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-import coderepository.command.Options.OptionValue;
+import coderepository.Dependency;
 
-public class Options implements Iterable<OptionValue> {
+public class Options {
 
-	private final Map<String, OptionValue> options = new HashMap<>();
+	private final List<Parameter> params = new ArrayList<>();
+	private final List<Option> options = new ArrayList<>();
 	
-	Options add(String option, String value) {
-		options.put(option, new OptionValue(option, value));
-		return this;
-	}
-
-	Options add(String option) {
-		options.put(option, new OptionValue(option, null));
-		return this;
+	public void param(String name, String help) {
+		this.params.add(new Parameter(name, help));
 	}
 	
-	public boolean has(String... option) {
-		for (String opt : option) {
-			if (options.containsKey(opt)) {
-				return true;
-			}
-		}
-		return false;
+	public void option(String help, String... options) {
+		option(help, false, options);
 	}
 	
-	public OptionValue get(String... option) {
-		for (String opt : option) {
-			if (options.containsKey(opt)) {
-				return options.get(opt);
-			}
-		}
-		return null;
+	public void option(String help, boolean value, String... options) {
+		this.options.add(new Option(options[0], help, value, Arrays.asList(options)));
 	}
-	
-	@Override
-	public Iterator<OptionValue> iterator() {
-		return options.values().iterator();
-	}
-	
-	public static final class OptionValue {
 
-		private final String option;
-		private final String value;
+	public Parameter getParameter(int index) {
+		return params.get(index);
+	}
+
+	public Option getOption(String name) {
+		return options.stream().filter(o -> o.getName().equals(name)).findFirst().get();
+	}
+	
+	public Args parse(String[] data) {
+		int index = 0;
 		
-		private OptionValue(String option, String value) {
-			this.option = option;
+		Map<String, String> args = new HashMap<>();
+		Map<String, String> opts = new HashMap<>();
+		List<Dependency> dependencies = new ArrayList<>();
+		
+		List<String> list = Arrays.asList(data);
+		Iterator<String> it = list.iterator();
+		while (it.hasNext()) {
+			String arg = it.next();
+			
+			if (arg.startsWith("-")) {
+				final String optionName = arg.substring(1);
+				String optionKey = optionName;
+				boolean hasValue = true;
+				
+				Optional<Option> option = options.stream().filter(o -> o.options.contains(optionName)).findFirst();
+				if (option.isPresent()) {
+					Option o = option.get();
+					optionKey = o.name;
+					hasValue = o.value;
+				}
+
+				String value = "";
+				if (hasValue && it.hasNext()) {
+					value = it.next();
+				}
+				opts.put(optionKey, value);
+			} else if (arg.startsWith("+")) {
+				String[] parts = arg.substring(1).split("\\:");
+				if (parts.length == 3) {
+					dependencies.add(new Dependency(parts[0], parts[1], parts[2]));
+				} else if (parts.length == 4) {
+					dependencies.add(new Dependency(parts[0], parts[1], parts[2], parts[3]));
+				}
+			} else {
+				if (params.size() > index) {
+					Parameter option = params.get(index++);
+					args.put(option.name, arg);
+				}
+			}
+ 		}
+		
+		return new Args(args, opts, dependencies);
+	}
+	
+	public class Parameter {
+		
+		private final String name;
+		private final String help;
+		
+		private Parameter(String name, String help) {
+			this.name = name;
+			this.help = help;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public String getHelp() {
+			return help;
+		}
+		
+	}
+
+	public class Option {
+		
+		private final String name;
+		private final List<String> options;
+		private final String help;
+		private final boolean value;
+		
+		private Option(String name, String help, boolean value, List<String> options) {
+			this.name = name;
+			this.help = help;
 			this.value = value;
+			this.options = options;
 		}
 
-		public String getOption() {
-			return option;
+		public String getName() {
+			return name;
 		}
-		
-		public String getValue() {
+
+		public List<String> getOptions() {
+			return options;
+		}
+
+		public String getHelp() {
+			return help;
+		}
+
+		public boolean hasValue() {
 			return value;
 		}
-
-		@Override
-		public String toString() {
-			return "OptionValue [option=" + option + ", value=" + value + "]";
-		}
 		
 	}
 	
+	public static class Args {
+		
+		private final Map<String, String> args;
+		private final Map<String, String> options;
+		private final List<Dependency> dependencies;
+
+		private Args(Map<String, String> args, Map<String, String> options, List<Dependency> dependencies) {
+			this.args = args;
+			this.options = options;
+			this.dependencies = dependencies;
+		}
+
+		public Optional<String> param(String name) {
+			return Optional.ofNullable(args.get(name));
+		}
+
+		public Map<String, String> params() {
+			return Collections.unmodifiableMap(args);
+		}
+
+		public boolean hasOption(String... names) {
+			for (String name : names) {
+				if (options.containsKey(name)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public Optional<String> option(String name) {
+			return Optional.ofNullable(options.get(name));
+		}
+
+		public Map<String, String> options() {
+			return Collections.unmodifiableMap(options);
+		}
+
+		public List<Dependency> dependencies() {
+			return dependencies;
+		}
+		
+	}
+
 }

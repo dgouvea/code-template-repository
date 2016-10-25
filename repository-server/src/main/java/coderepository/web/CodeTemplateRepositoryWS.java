@@ -31,7 +31,7 @@ import coderepository.Templates;
 
 @RestController
 @RequestMapping("/repository")
-public class RepositoryService {
+public class CodeTemplateRepositoryWS {
 
 	@Autowired
 	private Config config;

@@ -46,6 +46,10 @@ public class Config {
 		return Collections.unmodifiableMap(map);
 	}
 	
+	public boolean containsProperty(String name) {
+		return properties.containsKey(name);
+	}
+	
 	public String getProperty(String name) {
 		return properties.getProperty(name);
 	}

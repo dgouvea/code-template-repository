@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import coderepository.TemplateService;
+import coderepository.command.Options.Args;
 import coderepository.util.CompressorUtils;
 
 @Component
@@ -26,10 +27,19 @@ public class PushCommand extends AbstractCommandLine {
 	}
 	
 	@Override
-	protected void run(String action, Args args) {
+	public Options options() {
+		Options options = new Options();
+		options.param(getCommand(), getHelp());
+		options.param("folder", "The folder to be pushed to the local repository");
+		options.param("template", "The name of the template, by default it is the folder's name");
+		return options;
+	}
+	
+	@Override
+	protected void run(Args args) {
 		String folderName = ".";
-		if (args.hasNext()) {
-			folderName = args.next();
+		if (args.param("folder").isPresent()) {
+			folderName = args.param("folder").get();
 		}
 		
 		File folder = new File(folderName);
@@ -40,8 +50,8 @@ public class PushCommand extends AbstractCommandLine {
 		}
 
 		String templateName = folder.getName();
-		if (args.hasNext()) {
-			templateName = args.next();
+		if (args.param("template").isPresent()) {
+			templateName = args.param("template").get();
 		}
 		
 		CompressorUtils.compress(new File(config.getRepositoryFolder(), templateService.getTemplateFileName(templateName)), folder);

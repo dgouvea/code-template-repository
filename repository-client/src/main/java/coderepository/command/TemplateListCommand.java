@@ -4,13 +4,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 
-import coderepository.TemplateService;
+import coderepository.RepositoryService;
+import coderepository.RepositoryServiceFactory;
+import coderepository.command.Options.Args;
 
 @Component
 public class TemplateListCommand extends AbstractCommandLine {
 
 	@Autowired
-	private TemplateService templateService;
+	private RepositoryServiceFactory repositoryServiceFactory;
 	
 	@Override
 	protected String getCommand() {
@@ -23,9 +25,18 @@ public class TemplateListCommand extends AbstractCommandLine {
 	}
 
 	@Override
-	protected void run(String action, Args args) {
+	public Options options() {
+		Options options = new Options();
+		options.param(getCommand(), getHelp());
+		return options;
+	}
+	
+	@Override
+	protected void run(Args args) {
 		log("## local");
-		templateService.local().forEach(template -> {
+		
+		RepositoryService localRepositoryService = repositoryServiceFactory.local();
+		localRepositoryService.list().forEach(template -> {
 			log("\t* " + template.getName());
 		});
 		
@@ -34,7 +45,8 @@ public class TemplateListCommand extends AbstractCommandLine {
 			log("\n## remote: " + repositoryName + " (" + value + ")");
 			
 			try {
-				templateService.remote(repositoryName).forEach(template -> {
+				RepositoryService repositoryService = repositoryServiceFactory.remote(repositoryName);
+				repositoryService.list().forEach(template -> {
 					log("\t* " + template.getName());
 				});
 			} catch (ResourceAccessException e) {

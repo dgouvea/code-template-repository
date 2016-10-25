@@ -19,6 +19,15 @@ public class CommandLineExecutor implements CommandLineRunner {
 	private ConfigCommand configCommand;
 	
 	@Autowired
+	private ConfigDefaultCommand configDefaultCommand;
+	
+	@Autowired
+	private ConfigAliasCommand configAliasCommand;
+
+	@Autowired
+	private ConfigRepositoryCommand configRepositoryCommand;
+	
+	@Autowired
 	private PushCommand pushCommand;
 
 	@Autowired
@@ -40,6 +49,9 @@ public class CommandLineExecutor implements CommandLineRunner {
 		commands.add(helpCommand);
 		commands.add(versionCommand);
 		commands.add(configCommand);
+		commands.add(configDefaultCommand);
+		commands.add(configAliasCommand);
+		commands.add(configRepositoryCommand);
 		commands.add(pushCommand);
 		commands.add(installCommand);
 		commands.add(templateListCommand);
@@ -48,11 +60,9 @@ public class CommandLineExecutor implements CommandLineRunner {
 	
 	@Override
 	public void run(String... arguments) throws Exception {
-		Args args = new Args(arguments);
-		String action = args.hasNext() ? args.next() : "";
-
 		commands.forEach(command -> {
-			command.execute(action, args);
+			Options options = command.options();
+			command.execute(options.parse(arguments));
 		});
 	}
 

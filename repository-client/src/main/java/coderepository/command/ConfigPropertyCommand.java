@@ -4,6 +4,8 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
+import coderepository.command.Options.Args;
+
 @Component
 public abstract class ConfigPropertyCommand extends AbstractCommandLine {
 
@@ -18,19 +20,30 @@ public abstract class ConfigPropertyCommand extends AbstractCommandLine {
 	}
 	
 	@Override
-	protected boolean canExecute(String action, Args args) {
-		return action.equals(getCommand()) || action.equals("remove-" + getCommand());
+	protected boolean canExecute(Args args) {
+		return args.param(getCommand()).isPresent() && (args.param(getCommand()).get().equals(getCommand())
+				|| args.param(getCommand()).get().equals("remove-" + getCommand()));
 	}
 	
 	@Override
-	protected void run(String action, Args args) {
-		if (action.equals(getCommand())) {
-			if (args.hasNext()) {
+	public Options options() {
+		Options options = new Options();
+		options.param("config", "config");
+		options.param(getCommand(), getHelp());
+		options.param("name", "The property name");
+		options.param("value", "The property value");
+		return options;
+	}
+	
+	@Override
+	protected void run(Args args) {
+		if (args.param(getCommand()).get().equals(getCommand())) {
+			if (args.param("name").isPresent()) {
 				addProperty(args);
 			} else {
 				showProperties();
 			}
-		} else if (action.equals("remove-" + getCommand())) {
+		} else if (args.param(getCommand()).get().equals("remove-" + getCommand())) {
 			removeProperty(args);
 		}
 	}
@@ -49,17 +62,17 @@ public abstract class ConfigPropertyCommand extends AbstractCommandLine {
 	}
 
 	private void addProperty(Args args) {
-		if (!args.hasNext()) {
+		if (!args.param("name").isPresent()) {
 			throw new IllegalArgumentException("You should provide the name and value");
 		}
 		
-		String name = args.next();
+		String name = args.param("name").get();
 		
-		if (!args.hasNext()) {
+		if (!args.param("value").isPresent()) {
 			throw new IllegalArgumentException("You should provide the value");
 		}
 
-		String value = args.next();
+		String value = args.param("value").get();
 		
 		validate(name, value);
 		
@@ -70,11 +83,15 @@ public abstract class ConfigPropertyCommand extends AbstractCommandLine {
 	}
 	
 	private void removeProperty(Args args) {
-		if (!args.hasNext()) {
+		if (!args.param("name").isPresent()) {
 			throw new IllegalArgumentException("You should provide the " + getCommand());
 		}
 		
-		String name = args.next();
+		String name = args.param("name").get();
+		
+		if (!config.containsProperty(name)) {
+			throw new IllegalArgumentException(getCommand() + " " + name + " not found");
+		}
 		
 		config.removeProperty(getCommand(), getPrefix() + name);
 		config.store();
