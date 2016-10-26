@@ -75,10 +75,6 @@ public class RemoteRepositoryService implements RepositoryService {
 	
 	@Override
 	public Template push(String templateName, byte[] bytes) {
-		if (!exists(repositoryName)) {
-			throw new IllegalArgumentException("Repository " + repositoryName + " not found");
-		}
-		
 		String templateFileName = templateService.getTemplateFileName(templateName);
 		
 		HttpHeaders header = new HttpHeaders();

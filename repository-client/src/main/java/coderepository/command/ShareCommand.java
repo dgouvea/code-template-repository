@@ -3,7 +3,6 @@ package coderepository.command;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,24 +43,22 @@ public class ShareCommand extends AbstractCommandLine {
 	
 	@Override
 	protected void run(Args args) {
-		Optional<String> templateName = args.param("template");
-
-		if (!templateName.isPresent()) {
+		if (!args.param("template").isPresent()) {
 			throw new IllegalArgumentException("You should specify the template");
 		}
 		
+		String templateName = args.param("template").get();
+		
 		RepositoryService localRepositoryService = repositoryServiceFactory.local();
 		
-		String templateFileName = templateService.getTemplateFileName(templateName.get());
-		if (!localRepositoryService.exists(templateName.get())) {
+		String templateFileName = templateService.getTemplateFileName(templateName);
+		if (!localRepositoryService.exists(templateName)) {
 			throw new IllegalArgumentException("Template " + templateName + " does not exists");
 		}
 		
-		byte[] bytes = localRepositoryService.download(templateName.get());
+		byte[] bytes = localRepositoryService.download(templateName);
 
-		Optional<String> repositoryName = args.param("repository");
-
-		if (!repositoryName.isPresent()) {
+		if (!args.param("repository").isPresent()) {
 			try (FileOutputStream outputStream = new FileOutputStream(new File(templateFileName))) {
 				IOUtils.write(bytes, outputStream);
 				log("Creating template package for " + templateFileName);
@@ -69,9 +66,10 @@ public class ShareCommand extends AbstractCommandLine {
 				throw new RuntimeException("Error copying template: " + e.getMessage(), e);
 			}
 		} else {
-			RepositoryService repositoryService = repositoryServiceFactory.remote(repositoryName.get());
-			repositoryService.push(templateName.get(), bytes);
-			log("Template " + templateName + " has pushed to " + repositoryName.get() + " repository");
+			String repositoryName = args.param("repository").get();
+			RepositoryService repositoryService = repositoryServiceFactory.remote(repositoryName);
+			repositoryService.push(templateName, bytes);
+			log("Template " + templateName + " has pushed to " + repositoryName + " repository");
 		}
 	}
 

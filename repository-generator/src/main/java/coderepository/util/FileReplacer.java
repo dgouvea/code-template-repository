@@ -10,15 +10,22 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 
 public class FileReplacer {
 
+	private static final Logger logger = Logger.getLogger(FileReplacer.class);
+	
 	private static final String FILE_NAME_PATTERN = ".*__(.+)__.*";
 	
 	public static void replaceFolders(File folder, boolean override, Map<String, String> properties) throws IOException {
+		logger.info("Replacing properties in files");
+		
 		File[] files = folder.listFiles();
 		for (File file : files) {
 			String fileName = file.getName();
+			logger.debug("Checking file " + file.getPath());
+			
 			if (fileName.matches(FILE_NAME_PATTERN)) {
 				String propertyName = fileName.replaceAll(FILE_NAME_PATTERN, "$1");
 				if (properties.containsKey(propertyName)) {

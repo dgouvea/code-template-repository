@@ -175,6 +175,11 @@ public class Options {
 		public List<Dependency> dependencies() {
 			return dependencies;
 		}
+
+		@Override
+		public String toString() {
+			return "Args [args=" + args + ", options=" + options + ", dependencies=" + dependencies + "]";
+		}
 		
 	}
 

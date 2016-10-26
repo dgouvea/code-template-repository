@@ -56,6 +56,7 @@ public class InstallCommand extends AbstractCommandLine {
 		
 		String templateName = args.param("template").get();
 		
+		
 		String folderName = ".";
 		if (args.param("folder").isPresent()) {
 			folderName = args.param("folder").get();
@@ -67,6 +68,8 @@ public class InstallCommand extends AbstractCommandLine {
 		} catch (IOException e) {
 			throw new RuntimeException("Problem in folder " + folderName, e);
 		}
+
+		logger.info("Installing template " + templateName + " on " + folder.getPath());
 		
 		if (!repositoryServiceFacade.exists(templateName)) {
 			throw new RuntimeException("Template " + templateName + " not found");
@@ -77,6 +80,8 @@ public class InstallCommand extends AbstractCommandLine {
 
 		File packageFile = new File(tmp, templateService.getTemplateFileName(templateName));
 		
+		logger.info("Downloading template " + templateName + " from repository");
+		
 		byte[] bytes = repositoryServiceFacade.download(templateName);
 		try (FileOutputStream outputStream = new FileOutputStream(packageFile)) {
 			IOUtils.write(bytes, outputStream);
@@ -84,7 +89,15 @@ public class InstallCommand extends AbstractCommandLine {
 			throw new RuntimeException("Error downloading the template", e);
 		}
 		
+		logger.info("Uncompressing template file");
+		
 		CompressorUtils.uncompress(packageFile, tmp);
+		
+		packageFile.delete();
+		
+		logger.info("Preparing template to be installed");
+
+		logger.info("=> Organizing template properties");
 		
 		TemplateManager templateManager = new TemplateManager(tmp.getAbsolutePath());
 		templateManager.setDependencyManagerSystem(config.getProperty("default.builder"));
@@ -97,17 +110,27 @@ public class InstallCommand extends AbstractCommandLine {
 			templateManager.setProperty(name, value);
 		});
 
-		if (args.param("group").isPresent()) {
-			templateManager.setGroup(args.param("group").get());
+		if (args.option("group").isPresent()) {
+			templateManager.setGroup(args.option("group").get());
 		}
 		
-		if (args.param("artifact").isPresent()) {
-			templateManager.setArtifact(args.param("artifact").get());
+		if (args.option("artifact").isPresent()) {
+			templateManager.setArtifact(args.option("artifact").get());
 		}
+		
+		logger.debug(templateManager.getProperties());
+		
+		logger.info("=> Organizing template dependencies");
 		
 		args.dependencies().forEach(dependency -> templateManager.dependency(dependency));
 		
+		logger.debug(args.dependencies());
+		
+		logger.info("Installing template...");
+		
 		templateManager.install(folder.getAbsolutePath());
+		
+		logger.info("Deleting temporary template directory");
 		
 		try {
 			FileUtils.deleteDirectory(tmp);

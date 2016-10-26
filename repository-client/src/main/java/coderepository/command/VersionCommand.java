@@ -20,6 +20,7 @@ public class VersionCommand extends AbstractCommandLine {
 	@Override
 	public Options options() {
 		Options options = new Options();
+		options.param(getCommand(), getHelp());
 		options.option("Show the version of Code Template Repository client", "version", "v");
 		return options;
 	}

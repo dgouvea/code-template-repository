@@ -8,8 +8,10 @@ import java.util.Date;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+@Scope("prototype")
 @Service("localRepositoryService")
 public class LocalRepositoryService implements RepositoryService {
 
