@@ -81,8 +81,6 @@ public class TemplateManager {
 	}
 
 	public void dependency(String dependencyString) {
-		Dependency dependency = null;
-		
 		String[] parts = dependencyString.split("\\:");
 		if (parts.length == 3) {
 			dependencies.add(new Dependency(parts[0], parts[1], parts[2]));
@@ -99,8 +97,6 @@ public class TemplateManager {
 		} else {
 			logger.warn("Ignoring dependency " + dependencyString);
 		}
-		
-		dependencies.add(dependency);
 	}
 	
 	public void installDependencies(String path) {
