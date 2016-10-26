@@ -56,7 +56,6 @@ public class InstallCommand extends AbstractCommandLine {
 		
 		String templateName = args.param("template").get();
 		
-		
 		String folderName = ".";
 		if (args.param("folder").isPresent()) {
 			folderName = args.param("folder").get();
@@ -99,7 +98,7 @@ public class InstallCommand extends AbstractCommandLine {
 
 		logger.info("=> Organizing template properties");
 		
-		TemplateManager templateManager = new TemplateManager(tmp.getAbsolutePath());
+		TemplateManager templateManager = new TemplateManager(config, tmp.getAbsolutePath());
 		templateManager.setDependencyManagerSystem(config.getProperty("default.builder"));
 		templateManager.setGroup(config.getProperty("default.group"));
 		templateManager.setArtifact(config.getProperty("default.artifact"));
@@ -116,6 +115,10 @@ public class InstallCommand extends AbstractCommandLine {
 		
 		if (args.option("artifact").isPresent()) {
 			templateManager.setArtifact(args.option("artifact").get());
+		}
+
+		if (args.option("builder").isPresent()) {
+			templateManager.setDependencyManagerSystem(args.option("builder").get());
 		}
 		
 		logger.debug(templateManager.getProperties());

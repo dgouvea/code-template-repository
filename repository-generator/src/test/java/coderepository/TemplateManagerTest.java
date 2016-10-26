@@ -31,7 +31,7 @@ public class TemplateManagerTest {
 	
 	@Test
 	public void testInstall() throws IOException {
-		TemplateManager packageManager = new TemplateManager("templates/project-a");
+		TemplateManager packageManager = new TemplateManager(new Config(), "templates/project-a");
 		packageManager.setGroup("coderepository.template.newproject");
 		packageManager.setArtifact("new-project");
 		packageManager.setVersion("0.0.1");
@@ -39,7 +39,7 @@ public class TemplateManagerTest {
 		packageManager.setProperty("main", "MainClass");
 		packageManager.install("out");
 
-		packageManager = new TemplateManager("templates/project-b");
+		packageManager = new TemplateManager(new Config(), "templates/project-b");
 		packageManager.setGroup("coderepository.template.newproject");
 		packageManager.setArtifact("new-project");
 		packageManager.setVersion("0.0.1");
@@ -73,7 +73,7 @@ public class TemplateManagerTest {
 
 	@Test
 	public void testInstallOverride() throws IOException {
-		TemplateManager packageManager = new TemplateManager("templates/project-a");
+		TemplateManager packageManager = new TemplateManager(new Config(), "templates/project-a");
 		packageManager.setGroup("coderepository.template.newproject");
 		packageManager.setArtifact("new-project");
 		packageManager.setVersion("0.0.1");
@@ -81,7 +81,7 @@ public class TemplateManagerTest {
 		packageManager.setProperty("main", "MainClass");
 		packageManager.install("out");
 		
-		packageManager = new TemplateManager("templates/project-b");
+		packageManager = new TemplateManager(new Config(), "templates/project-b");
 		packageManager.setGroup("coderepository.template.newproject");
 		packageManager.setArtifact("new-project");
 		packageManager.setPackaging("jar");
@@ -95,7 +95,7 @@ public class TemplateManagerTest {
 
 	@Test
 	public void testInstallDependencies() throws IOException {
-		TemplateManager packageManager = new TemplateManager("templates/project-a");
+		TemplateManager packageManager = new TemplateManager(new Config(), "templates/project-a");
 		packageManager.setDependencyManagerSystem("Maven");
 		packageManager.setGroup("coderepository.template.newproject");
 		packageManager.setArtifact("new-project");

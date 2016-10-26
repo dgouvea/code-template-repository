@@ -10,11 +10,11 @@ public final class Dependency {
 	private final String scope;
 	private final String toString;
 	
-	public Dependency(String group, String artifact, String version) {
+	Dependency(String group, String artifact, String version) {
 		this(group, artifact, version, null);
 	}
 	
-	public Dependency(String group, String artifact, String version, String scope) {
+	Dependency(String group, String artifact, String version, String scope) {
 		this.group = group;
 		this.artifact = artifact;
 		this.version = version;

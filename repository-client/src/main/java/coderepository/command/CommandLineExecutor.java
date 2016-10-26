@@ -2,6 +2,7 @@ package coderepository.command;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -9,9 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import coderepository.Config;
+
 @Component
 public class CommandLineExecutor implements CommandLineRunner {
 
+	@Autowired
+	private Config config;
+	
 	@Autowired
 	private VersionCommand versionCommand;
 	
@@ -60,9 +66,11 @@ public class CommandLineExecutor implements CommandLineRunner {
 	
 	@Override
 	public void run(String... arguments) throws Exception {
+		Map<String, String> dependencyAliases = config.getSection("dependency");
+		
 		commands.forEach(command -> {
 			Options options = command.options();
-			command.execute(options.parse(arguments));
+			command.execute(options.parse(dependencyAliases, arguments));
 		});
 	}
 

@@ -13,18 +13,23 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 
 import coderepository.util.FileReplacer;
 
 public class TemplateManager {
 
+	private static final Logger logger = Logger.getLogger(TemplateManager.class);
+	
+	private final Config config;
 	private final File templateFolder;
 	private final Map<String, String> properties = new HashMap<>();
 	private final List<Dependency> dependencies = new ArrayList<>();
 	private final DependencyManagerFactory factory = new DependencyManagerFactory();
 	private String dependencyManagementSystem;
 	
-	public TemplateManager(String templateFolder) {
+	public TemplateManager(Config config, String templateFolder) {
+		this.config = config;
 		this.templateFolder = new File(templateFolder);
 	}
 	
@@ -75,7 +80,26 @@ public class TemplateManager {
 		dependencies.add(new Dependency(group, artifact, version));
 	}
 
-	public void dependency(Dependency dependency) {
+	public void dependency(String dependencyString) {
+		Dependency dependency = null;
+		
+		String[] parts = dependencyString.split("\\:");
+		if (parts.length == 3) {
+			dependencies.add(new Dependency(parts[0], parts[1], parts[2]));
+		} else if (parts.length == 4) {
+			dependencies.add(new Dependency(parts[0], parts[1], parts[2], parts[3]));
+		} else if (parts.length == 1) {
+			Map<String, String> dependencyAliases = config.getSection("dependency");
+			String dep = dependencyAliases.get("dependency.alias." + dependencyString);
+			if (dep == null) {
+				logger.warn("Dependency " + dependencyString + " not found");
+			}
+			parts = dep.split("\\:");
+			dependencies.add(new Dependency(parts[0], parts[1], parts[2], parts[3]));
+		} else {
+			logger.warn("Ignoring dependency " + dependencyString);
+		}
+		
 		dependencies.add(dependency);
 	}
 	

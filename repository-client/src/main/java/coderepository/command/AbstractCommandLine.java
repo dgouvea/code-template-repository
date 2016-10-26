@@ -1,7 +1,5 @@
 package coderepository.command;
 
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -35,10 +33,6 @@ public abstract class AbstractCommandLine {
 	
 	protected boolean canExecute(Args args) {
 		return args.param(getCommand()).isPresent() && args.param(getCommand()).get().equals(getCommand());
-	}
-	
-	protected void load(List<AbstractCommandLine> commands) {
-		
 	}
 	
 	protected abstract String getCommand();

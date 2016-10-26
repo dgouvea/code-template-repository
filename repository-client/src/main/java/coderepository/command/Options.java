@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import coderepository.Dependency;
-
 public class Options {
 
 	private final List<Parameter> params = new ArrayList<>();
@@ -37,11 +35,15 @@ public class Options {
 	}
 	
 	public Args parse(String[] data) {
+		return parse(new HashMap<>(), data);
+	}
+	
+	public Args parse(Map<String, String> dependencyAliases, String[] data) {
 		int index = 0;
 		
 		Map<String, String> args = new HashMap<>();
 		Map<String, String> opts = new HashMap<>();
-		List<Dependency> dependencies = new ArrayList<>();
+		List<String> dependencies = new ArrayList<>();
 		
 		List<String> list = Arrays.asList(data);
 		Iterator<String> it = list.iterator();
@@ -66,16 +68,14 @@ public class Options {
 				}
 				opts.put(optionKey, value);
 			} else if (arg.startsWith("+")) {
-				String[] parts = arg.substring(1).split("\\:");
-				if (parts.length == 3) {
-					dependencies.add(new Dependency(parts[0], parts[1], parts[2]));
-				} else if (parts.length == 4) {
-					dependencies.add(new Dependency(parts[0], parts[1], parts[2], parts[3]));
-				}
+				String dependencyName = arg.substring(1);
+				dependencies.add(dependencyName);
 			} else {
 				if (params.size() > index) {
 					Parameter option = params.get(index++);
 					args.put(option.name, arg);
+				} else {
+					args.put(Integer.toString(index++), arg);
 				}
 			}
  		}
@@ -139,9 +139,9 @@ public class Options {
 		
 		private final Map<String, String> args;
 		private final Map<String, String> options;
-		private final List<Dependency> dependencies;
+		private final List<String> dependencies;
 
-		private Args(Map<String, String> args, Map<String, String> options, List<Dependency> dependencies) {
+		private Args(Map<String, String> args, Map<String, String> options, List<String> dependencies) {
 			this.args = args;
 			this.options = options;
 			this.dependencies = dependencies;
@@ -172,7 +172,7 @@ public class Options {
 			return Collections.unmodifiableMap(options);
 		}
 
-		public List<Dependency> dependencies() {
+		public List<String> dependencies() {
 			return dependencies;
 		}
 

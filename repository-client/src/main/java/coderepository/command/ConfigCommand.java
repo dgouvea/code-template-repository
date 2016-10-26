@@ -24,18 +24,17 @@ public class ConfigCommand extends AbstractCommandLine {
 	public Options options() {
 		Options options = new Options();
 		options.param(getCommand(), getHelp());
-		options.param("options", "options");
 		return options;
 	}
 	
 	@Override
 	protected void run(Args args) {
 		if (args.params().size() == 1) {
-			log(printConfig());
+			log(configFileToString());
 		}
 	}
 
-	private String printConfig() {
+	private String configFileToString() {
 		StringBuilder text = new StringBuilder();
 		
 		List<String> sections = config.getSections();

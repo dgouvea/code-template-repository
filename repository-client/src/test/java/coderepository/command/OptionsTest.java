@@ -8,7 +8,6 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import coderepository.Dependency;
 import coderepository.command.Options.Args;
 import coderepository.command.Options.Option;
 
@@ -142,9 +141,9 @@ public class OptionsTest {
 		Assert.assertEquals(params, args.params());
 		Assert.assertEquals(1, args.params().size());
 		
-		List<Dependency> dependencies = new ArrayList<>();
-		dependencies.add(new Dependency("junit", "junit", "4.12", "test"));
-		dependencies.add(new Dependency("commons-io", "commons-io", "2.5"));
+		List<String> dependencies = new ArrayList<>();
+		dependencies.add("junit:junit:4.12:test");
+		dependencies.add("commons-io:commons-io:2.5");
 		
 		Assert.assertEquals(2, args.dependencies().size());
 		Assert.assertEquals(dependencies, args.dependencies());
