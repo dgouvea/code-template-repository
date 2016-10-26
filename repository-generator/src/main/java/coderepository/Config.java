@@ -105,6 +105,16 @@ public class Config {
 		}
 		
 		load();
+		
+		checkVersion();
+	}
+
+	private void checkVersion() {
+		String version = properties.getProperty("client.version");
+		if (!this.version.equals(version)) {
+			properties.put("client.version", this.version);
+			store();
+		}
 	}
 
 	private void load() throws IOException {
