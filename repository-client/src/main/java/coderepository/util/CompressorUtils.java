@@ -1,9 +1,11 @@
 package coderepository.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -40,24 +42,41 @@ public class CompressorUtils {
 		}
 	}
 
+	public static byte[] compressToBytes(File... files) {
+		return compressToBytes(Arrays.asList(files));
+	}
+	
+	public static byte[] compressToBytes(List<File> files) {
+		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+			compress(outputStream, files);
+			return outputStream.toByteArray();
+		} catch (IOException e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
+	}
+	
 	public static void compress(File zipFile, File... files) {
 		compress(zipFile, Arrays.asList(files));
 	}
 	
 	public static void compress(File zipFile, List<File> files) {
 		try (FileOutputStream outputStream = new FileOutputStream(zipFile)) {
-			ZipOutputStream out = new ZipOutputStream(outputStream);
-			files.forEach(file -> {
-				if (file.isDirectory()) {
-					compressDirectory(file, "", out);
-				} else {
-					compressFile(file, "", out);
-				}
-			});
-			out.close();
+			compress(outputStream, files);
 		} catch (IOException e) {
 			throw new RuntimeException(e.getMessage(), e);
 		}
+	}
+	
+	private static void compress(OutputStream outputStream, List<File> files) throws IOException {
+		ZipOutputStream out = new ZipOutputStream(outputStream);
+		files.forEach(file -> {
+			if (file.isDirectory()) {
+				compressDirectory(file, "", out);
+			} else {
+				compressFile(file, "", out);
+			}
+		});
+		out.close();
 	}
 
 	private static void compressDirectory(File folder, String sourceDir, ZipOutputStream out) {

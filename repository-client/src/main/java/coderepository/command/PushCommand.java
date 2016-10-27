@@ -6,7 +6,8 @@ import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import coderepository.TemplateService;
+import coderepository.RepositoryService;
+import coderepository.RepositoryServiceFactory;
 import coderepository.command.Options.Args;
 import coderepository.util.CompressorUtils;
 
@@ -14,7 +15,7 @@ import coderepository.util.CompressorUtils;
 public class PushCommand extends AbstractCommandLine {
 
 	@Autowired
-	private TemplateService templateService;
+	private RepositoryServiceFactory repositoryServiceFactory;
 	
 	@Override
 	protected String getCommand() {
@@ -53,8 +54,15 @@ public class PushCommand extends AbstractCommandLine {
 		if (args.param("template").isPresent()) {
 			templateName = args.param("template").get();
 		}
+
+		logger.info("Compressing folder " + folder.getPath());
 		
-		CompressorUtils.compress(new File(config.getRepositoryFolder(), templateService.getTemplateFileName(templateName)), folder);
+		byte[] bytes = CompressorUtils.compressToBytes(folder);
+
+		logger.info("Pushing template " + templateName + " to the local repository");
+
+		RepositoryService localRepositoryService = repositoryServiceFactory.local();
+		localRepositoryService.push(templateName, bytes);
 		
 		log("Template \"" + templateName + "\" created in the local repository");
 	}

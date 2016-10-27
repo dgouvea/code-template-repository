@@ -44,6 +44,7 @@ public class InstallCommand extends AbstractCommandLine {
 		options.option("The artifact name", true, "artifact", "a");
 		options.option("The version of artifact", true, "version", "v");
 		options.option("The packaging type", true, "packaging");
+		options.option("Override existing files", false, "override", "o");
 		options.option("The Builder system to be used. e.g.: Maven, Gradle", true, "builder", "b");
 		return options;
 	}
@@ -99,11 +100,6 @@ public class InstallCommand extends AbstractCommandLine {
 		logger.info("=> Organizing template properties");
 		
 		TemplateManager templateManager = new TemplateManager(config, tmp.getAbsolutePath());
-		templateManager.setDependencyManagerSystem(config.getProperty("default.builder"));
-		templateManager.setGroup(config.getProperty("default.group"));
-		templateManager.setArtifact(config.getProperty("default.artifact"));
-		templateManager.setVersion(config.getProperty("default.version"));
-		templateManager.setPackaging(config.getProperty("default.packaging"));
 
 		args.options().forEach((name, value) -> {
 			templateManager.setProperty(name, value);
@@ -131,7 +127,7 @@ public class InstallCommand extends AbstractCommandLine {
 		
 		logger.info("Installing template...");
 		
-		templateManager.install(folder.getAbsolutePath());
+		templateManager.install(folder.getAbsolutePath(), args.hasOption("override"));
 		
 		logger.info("Deleting temporary template directory");
 		

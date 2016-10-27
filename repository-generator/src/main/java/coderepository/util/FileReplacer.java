@@ -19,8 +19,6 @@ public class FileReplacer {
 	private static final String FILE_NAME_PATTERN = ".*__(.+)__.*";
 	
 	public static void replaceFolders(File folder, boolean override, Map<String, String> properties) throws IOException {
-		logger.info("Replacing properties in files");
-		
 		File[] files = folder.listFiles();
 		for (File file : files) {
 			String fileName = file.getName();
@@ -32,6 +30,8 @@ public class FileReplacer {
 					String value = properties.get(propertyName);
 					
 					if (file.isDirectory()) {
+						logger.info("Renaming folder " + file.getPath() + " to " + value);
+						
 						File newFoler = new File(folder, value);
 						newFoler.mkdirs();
 						
@@ -52,6 +52,9 @@ public class FileReplacer {
 								FileUtils.forceDelete(newFile);
 							}
 						}
+						
+						logger.info("Renaming file " + file.getPath() + " to " + newFile.getName());
+						
 						file.renameTo(newFile);
 						replaceContent(newFile, properties);
 					}
@@ -99,13 +102,14 @@ public class FileReplacer {
 			
 		Content content = new Content();
 		content.data = data;
-		
+
 		properties.entrySet().forEach(e -> {
 			content.data = content.data.replace("__" + e.getKey() + "__", e.getValue());
 		});
 		
 		if (!data.equals(content.data)) {
 			try (FileOutputStream outputStream = new FileOutputStream(file)) {
+				logger.info("Replacing properties in file " + file.getPath());
 				IOUtils.write(content.data, outputStream, encoding);
 			}
 		}

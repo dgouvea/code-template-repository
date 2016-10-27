@@ -31,6 +31,12 @@ public class TemplateManager {
 	public TemplateManager(Config config, String templateFolder) {
 		this.config = config;
 		this.templateFolder = new File(templateFolder);
+		
+		setDependencyManagerSystem(config.getProperty("default.builder"));
+		setGroup(config.getProperty("default.group"));
+		setArtifact(config.getProperty("default.artifact"));
+		setVersion(config.getProperty("default.version"));
+		setPackaging(config.getProperty("default.packaging"));
 	}
 	
 	public String getDependencyManagerSystem() {
@@ -62,6 +68,10 @@ public class TemplateManager {
 	}
 
 	public TemplateManager setGroup(String group) {
+		if (group == null) {
+			group = "";
+		}
+		
 		setProperty("packageName", group);
 		setProperty("packageFolder", group.replace(".", File.separator));
 		return this;

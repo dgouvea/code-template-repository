@@ -51,15 +51,21 @@ public class ShareCommand extends AbstractCommandLine {
 		
 		RepositoryService localRepositoryService = repositoryServiceFactory.local();
 		
+		logger.info("Looking for template " + templateName + " in local repository");
+		
 		String templateFileName = templateService.getTemplateFileName(templateName);
 		if (!localRepositoryService.exists(templateName)) {
 			throw new IllegalArgumentException("Template " + templateName + " does not exists");
 		}
 		
+		logger.info("Downloading template " + templateName + " from local repository");
+
 		byte[] bytes = localRepositoryService.download(templateName);
 
 		if (!args.param("repository").isPresent()) {
 			try (FileOutputStream outputStream = new FileOutputStream(new File(templateFileName))) {
+				logger.info("Creating template in " + new File(templateFileName).getCanonicalFile().getPath());
+
 				IOUtils.write(bytes, outputStream);
 				log("Creating template package for " + templateFileName);
 			} catch (IOException e) {
@@ -67,6 +73,9 @@ public class ShareCommand extends AbstractCommandLine {
 			}
 		} else {
 			String repositoryName = args.param("repository").get();
+			
+			logger.info("Pushing template to " + repositoryName + " repository");
+			
 			RepositoryService repositoryService = repositoryServiceFactory.remote(repositoryName);
 			repositoryService.push(templateName, bytes);
 			log("Template " + templateName + " has pushed to " + repositoryName + " repository");

@@ -26,7 +26,7 @@ public class VersionCommand extends AbstractCommandLine {
 	
 	@Override
 	protected boolean canExecute(Args args) {
-		return args.params().isEmpty() && args.hasOption("v", "version");
+		return args.params().isEmpty() && args.hasOption("version");
 	}
 	
 	@Override

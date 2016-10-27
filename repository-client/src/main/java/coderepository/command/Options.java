@@ -58,8 +58,8 @@ public class Options {
 				Optional<Option> option = options.stream().filter(o -> o.options.contains(optionName)).findFirst();
 				if (option.isPresent()) {
 					Option o = option.get();
-					optionKey = o.name;
-					hasValue = o.value;
+					optionKey = o.getName();
+					hasValue = o.hasValue();
 				}
 
 				String value = "";
@@ -73,7 +73,7 @@ public class Options {
 			} else {
 				if (params.size() > index) {
 					Parameter option = params.get(index++);
-					args.put(option.name, arg);
+					args.put(option.getName(), arg);
 				} else {
 					args.put(Integer.toString(index++), arg);
 				}
@@ -155,13 +155,8 @@ public class Options {
 			return Collections.unmodifiableMap(args);
 		}
 
-		public boolean hasOption(String... names) {
-			for (String name : names) {
-				if (options.containsKey(name)) {
-					return true;
-				}
-			}
-			return false;
+		public boolean hasOption(String name) {
+			return options.containsKey(name);
 		}
 
 		public Optional<String> option(String name) {

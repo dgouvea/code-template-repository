@@ -85,6 +85,7 @@ public class TemplateManagerTest {
 		packageManager.setGroup("coderepository.template.newproject");
 		packageManager.setArtifact("new-project");
 		packageManager.setPackaging("jar");
+		packageManager.setVersion("0.0.1");
 		packageManager.install("out", true);
 		
 		try (FileInputStream stream = new FileInputStream("out/new-project/src/main/java/coderepository/template/newproject/ClassB.java")) {
