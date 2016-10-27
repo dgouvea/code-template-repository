@@ -16,6 +16,14 @@ import org.apache.commons.compress.utils.IOUtils;
 
 public class CompressorUtils {
 
+	public static boolean isZip(File file) {
+		try (FileInputStream inputStream = new FileInputStream(file)) {
+			return new ZipInputStream(inputStream).getNextEntry() != null;
+		} catch (IOException e) {
+			throw new RuntimeException("Problem to check if file " + file.getPath() + " is a zip", e);
+		}
+	}
+	
 	public static void uncompress(File zipFile, File folder) {
 		try (FileInputStream inputStream = new FileInputStream(zipFile)) {
 			ZipInputStream zip = new ZipInputStream(inputStream);
