@@ -124,3 +124,17 @@ List all templates from local repository
 ```bash
 repo list
 ```
+
+## Share the template
+Share the template to a file or remote repository.
+
+```bash
+repo share [template] [repository]
+
+# [template] => the name of template
+# [repository] => the name of repository (optional), this repository should be added before in the settings. if you do not provide, one zip file will with the template will be created in the current directory.
+
+e.g.:
+repo share my-template
+repo share my-template remote-repo-1
+```
