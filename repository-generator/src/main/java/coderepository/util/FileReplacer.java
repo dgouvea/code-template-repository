@@ -104,7 +104,11 @@ public class FileReplacer {
 		content.data = data;
 
 		properties.entrySet().forEach(e -> {
-			content.data = content.data.replace("__" + e.getKey() + "__", e.getValue());
+			String value = e.getValue();
+			if (value == null) {
+				value = "";
+			}
+			content.data = content.data.replace("__" + e.getKey() + "__", value);
 		});
 		
 		if (!data.equals(content.data)) {
